@@ -1,0 +1,11 @@
+# Ignore unnecessary files
+node_modules/
+.git/
+.env
+.env.local
+.gitignore
+README.md
+*.md
+.DS_Store
+npm-debug.log
+.eslintcache

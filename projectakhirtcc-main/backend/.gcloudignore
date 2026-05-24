@@ -1,0 +1,13 @@
+# Ignore unnecessary files during deployment
+node_modules/
+.git/
+.env
+.env.local
+.gitignore
+.gcloudignore
+README.md
+*.md
+.DS_Store
+perpustakaan-sa-key.json
+firebase-key.json
+deploy.log

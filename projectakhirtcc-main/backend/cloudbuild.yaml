@@ -1,0 +1,35 @@
+substitutions:
+  _ENV: "gs://rentalkendaraan/.env"
+
+steps:
+  - name: "gcr.io/cloud-builders/gsutil"
+    args: ["cp", "${_ENV}", ".env"]
+    dir: "backend"
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/b-10-451011/backend-service', '.']
+    dir: "backend"
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/b-10-451011/backend-service']
+
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'gcloud'
+    args:
+      - 'run'
+      - 'deploy'
+      - 'backend-service'
+      - '--image'
+      - 'gcr.io/b-10-451011/backend-service'
+      - '--region'
+      - 'us-central1'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
+    dir: "backend"
+
+images:
+  - 'gcr.io/b-10-451011/backend-service'
+
+options:
+  logging: CLOUD_LOGGING_ONLY

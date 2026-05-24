@@ -1,0 +1,176 @@
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTIsIm5hbWUiOiJJa2hzYW4iLCJlbWFpbCI6IjEyMzIyMDAyNEBzdHVkZW50LnVwbnlrLmFjLmlkIiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzQ4ODkxMjA1LCJleHAiOjE3NDg5Nzc2MDV9.8IvEqCICDRovtTUHJpzf7an9TdG7I0P-2yYm40scuto
+
+### ✅ Register User Baru
+POST https://backend-projectakhir-122089089856.us-central1.run.app/api/users/register
+Content-Type: application/json
+
+{
+  "name": "Aku111",
+  "email": "Aku1111@student.upnyk.ac.id",
+  "password": "12345"
+}
+
+### ✅ Login User
+POST https://backend-projectakhir-122089089856.us-central1.run.app/api/users/login
+Content-Type: application/json
+
+{
+  "email": "123220024@student.upnyk.ac.id",
+  "password": "12345"
+}
+
+### ✅ Ambil Profil User Login
+GET https://backend-projectakhir-122089089856.us-central1.run.app/api/users/me
+Authorization: Bearer {{token}}
+
+### ✅ Ambil Semua User (Admin)
+GET https://backend-projectakhir-122089089856.us-central1.run.app/api/users
+Authorization: Bearer {{token}}
+
+### ✅ Ambil Semua Kendaraan
+GET https://backend-projectakhir-122089089856.us-central1.run.app/api/vehicles
+Authorization: Bearer {{token}}
+
+### ✅ Tambah Kendaraan Baru (Admin)
+POST https://backend-projectakhir-122089089856.us-central1.run.app/api/vehicles
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "type": "mobil",
+  "brand": "Toyota",
+  "model": "Avanza",
+  "plate_number": "AB1234CD",
+  "price_per_day": 350000,
+  "image_url": "https://example.com/avanza.jpg"
+}
+
+### ✅ Ambil Detail Kendaraan
+GET https://backend-projectakhir-122089089856.us-central1.run.app/api/vehicles/1
+Authorization: Bearer {{token}}
+
+### ✅ Update Kendaraan (Admin)
+PUT https://backend-projectakhir-122089089856.us-central1.run.app/api/vehicles/1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "price_per_day": 400000,
+  "status": "rented"
+}
+
+### ❌ Hapus Kendaraan (Admin)
+DELETE https://backend-projectakhir-122089089856.us-central1.run.app/api/vehicles/35
+Authorization: Bearer {{token}}
+
+### ✅ Buat Sewa Kendaraan (User)
+POST https://backend-projectakhir-122089089856.us-central1.run.app/api/rentals
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "vehicle_id": 2,
+  "start_date": "2025-05-25",
+  "end_date": "2025-05-27",
+  "total_price": 700000
+}
+
+### ✅ Ambil Semua Sewa Milik User Login
+GET https://backend-projectakhir-122089089856.us-central1.run.app/api/rentals
+Authorization: Bearer {{token}}
+
+### ✅ Ambil Semua Sewa (Admin)
+GET https://backend-projectakhir-122089089856.us-central1.run.app/api/rentals/admin
+Authorization: Bearer {{token}}
+
+### ✅ Update Status Sewa (Admin)
+PUT https://backend-projectakhir-122089089856.us-central1.run.app/api/rentals/1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "status": "completed"
+}
+
+### ❌ Hapus Sewa (Admin)
+DELETE https://backend-projectakhir-122089089856.us-central1.run.app/api/rentals/1
+Authorization: Bearer {{token}}
+
+### ✅ Buat Pembayaran untuk Sewa
+POST https://backend-projectakhir-122089089856.us-central1.run.app/api/payments
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "rental_id": 40,
+  "payment_method": "transfer",
+  "amount": 700000
+}
+
+### ✅ Ambil Semua Pembayaran Milik User Login
+GET https://backend-projectakhir-122089089856.us-central1.run.app/api/payments
+Authorization: Bearer {{token}}
+
+### ✅ Ambil Semua Pembayaran (Admin)
+GET https://backend-projectakhir-122089089856.us-central1.run.app/api/payments/admin
+Authorization: Bearer {{token}}
+
+### ✅ Update Status Pembayaran (Admin)
+PUT https://backend-projectakhir-122089089856.us-central1.run.app/api/payments/1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "status": "paid"
+}
+
+### ✅ Tambah Review (User)
+POST https://backend-projectakhir-122089089856.us-central1.run.app/api/reviews
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "vehicle_id": 2,
+  "rating": 5,
+  "comment": "Kendaraannya nyaman dan bersih!"
+}
+
+### 🔍 Ambil Semua Review untuk Kendaraan
+GET https://backend-projectakhir-122089089856.us-central1.run.app/api/reviews/3
+Authorization: Bearer {{token}}
+
+### 🔍 Ambil Semua Review Milik User Login
+GET https://backend-projectakhir-122089089856.us-central1.run.app/api/reviews/my-reviews
+Authorization: Bearer {{token}}
+
+### ✅ Toggle Favorite (Tambah atau Hapus)
+POST https://backend-projectakhir-122089089856.us-central1.run.app/api/favorites/1
+Authorization: Bearer {{token}}
+
+### 🔍 Ambil Semua Favorite Milik User Login
+GET https://backend-projectakhir-122089089856.us-central1.run.app/api/favorites
+Authorization: Bearer {{token}}
+
+### 🔢 Total Favorite Milik User Login
+GET https://backend-projectakhir-122089089856.us-central1.run.app/api/favorites/total
+Authorization: Bearer {{token}}
+
+### Login Local
+
+POST http://localhost:8080/api/users/login
+Content-Type: application/json
+
+{
+  "email": "123220024@student.upnyk.ac.id",
+  "password": "12345"
+}
+
+### Login Online
+
+POST https://backend-projectakhir-122089089856.us-central1.run.app/api/users/login
+Content-Type: application/json
+
+{
+  "email":"123220024@student.upnyk.ac.id",
+  "password":"12345"
+}
