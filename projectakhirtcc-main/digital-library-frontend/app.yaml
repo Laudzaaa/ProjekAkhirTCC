@@ -7,8 +7,6 @@ env_variables:
   PORT: "8080"
   REACT_APP_API_URL: "https://e-31-489014.et.r.appspot.com"
 
-entrypoint: node server.js
-
 automatic_scaling:
   min_instances: 1
   max_instances: 5
