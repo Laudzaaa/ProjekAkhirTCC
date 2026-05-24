@@ -3,6 +3,22 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import db from './config/database.js';
 
+// Import all models to establish associations before sync
+import {
+  // Rental Vehicle API
+  User,
+  Vehicle,
+  Rental,
+  Payment,
+  Review,
+  Favorite,
+  // Library API
+  Buku,
+  Member,
+  Peminjaman,
+  Pengembalian
+} from './models/index.js';
+
 // Rental Vehicle API Routes
 import userRoutes from './routes/user.routes.js';
 import vehicleRoutes from './routes/vehicle.routes.js';
