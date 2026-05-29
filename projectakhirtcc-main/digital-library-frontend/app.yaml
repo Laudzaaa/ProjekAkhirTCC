@@ -1,16 +1,21 @@
-runtime: nodejs22
+runtime: python39
 service: frontend-service
-env: standard
-
-env_variables:
-  NODE_ENV: "production"
-  PORT: "8080"
-  REACT_APP_API_URL: "https://e-31-489014.et.r.appspot.com"
-
-automatic_scaling:
-  min_instances: 1
-  max_instances: 5
 
 handlers:
-- url: /.*
-  script: auto
+- url: /favicon.ico
+  static_files: build/favicon.ico
+  upload: build/favicon.ico
+- url: /static/(.*)
+  static_files: build/static/\1
+  upload: build/static/(.*)
+- url: /assets/(.*)
+  static_files: build/assets/\1
+  upload: build/assets/(.*)
+- url: /(.*)
+  static_files: build/\1
+  upload: build/(.*)
+
+# Serve index.html for root (fallback)
+- url: /
+  static_files: build/index.html
+  upload: build/index.html
