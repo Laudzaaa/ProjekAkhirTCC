@@ -2,34 +2,16 @@ runtime: python310
 service: frontend-service
 
 handlers:
-- url: /favicon.ico
-  static_files: build/favicon.ico
-  upload: build/favicon.ico
-- url: /static/(.*)
-  static_files: build/static/\1
-  upload: build/static/(.*)
-- url: /assets/(.*)
-  static_files: build/assets/\1
-  upload: build/assets/(.*)
-- url: /favicon.ico
-  static_files: build/favicon.ico
-  upload: build/favicon.ico
-- url: /static/(.*)
-  static_files: build/static/\1
-  upload: build/static/(.*)
-- url: /assets/(.*)
-  static_files: build/assets/\1
-  upload: build/assets/(.*)
-# Serve index.html for all non-asset routes (SPA fallback)
-- url: /favicon.ico
-  static_files: build/favicon.ico
-  upload: build/favicon.ico
-- url: /static/(.*)
-  static_files: build/static/\1
-  upload: build/static/(.*)
-- url: /assets/(.*)
-  static_files: build/assets/\1
-  upload: build/assets/(.*)
-- url: /(.+)
-  static_files: build/index.html
-  upload: build/index.html
+  - url: /favicon.ico
+    static_files: build/favicon.ico
+    upload: build/favicon.ico
+
+  - url: /static
+    static_dir: build/static
+
+  - url: /assets
+    static_dir: build/assets
+
+  - url: /.*
+    static_files: build/index.html
+    upload: build/index.html
