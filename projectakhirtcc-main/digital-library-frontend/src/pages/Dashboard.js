@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { bookAPI } from '../api/api';
+import { getLocalJSON } from '../utils/storage';
 import '../styles/Dashboard.css';
 
 const Dashboard = () => {
@@ -36,7 +37,8 @@ const Dashboard = () => {
     navigate('/login');
   };
 
-  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const user = getLocalJSON('user', {});
+  const displayName = user.nama || user.fullName || user.email || 'Pengguna';
 
   return (
     <div className="dashboard">
@@ -44,7 +46,7 @@ const Dashboard = () => {
         <div className="navbar-content">
           <h1>📚 Perpustakaan Digital Kampus</h1>
           <div className="navbar-menu">
-            <span>Selamat datang, {user.fullName}</span>
+            <span>Selamat datang, {displayName}</span>
             {user.role === 'admin' && (
               <Link to="/admin/tambah-buku" className="btn-secondary">
                 Tambah Buku
