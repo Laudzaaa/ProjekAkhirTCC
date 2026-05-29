@@ -20,10 +20,16 @@ handlers:
 - url: /assets/(.*)
   static_files: build/assets/\1
   upload: build/assets/(.*)
-# Serve index.html for root (fallback)
-- url: /
+# Serve index.html for all non-asset routes (SPA fallback)
+- url: /favicon.ico
+  static_files: build/favicon.ico
+  upload: build/favicon.ico
+- url: /static/(.*)
+  static_files: build/static/\1
+  upload: build/static/(.*)
+- url: /assets/(.*)
+  static_files: build/assets/\1
+  upload: build/assets/(.*)
+- url: /(.+)
   static_files: build/index.html
   upload: build/index.html
-- url: /(.*)
-  static_files: build/\1
-  upload: build/(.*)
