@@ -1,0 +1,21 @@
+steps:
+  - name: 'node:20'
+    dir: 'digital-library-frontend'
+    entrypoint: 'bash'
+    args:
+      - -c
+      - |
+        set -e
+        npm ci
+        npm run build
+
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    dir: 'digital-library-frontend'
+    entrypoint: 'bash'
+    args:
+      - -c
+      - |
+        set -e
+        gcloud app deploy app.yaml --project=$PROJECT_ID --quiet
+
+timeout: 1200s
