@@ -40,6 +40,10 @@ const Member = db.define('Member', {
     type: DataTypes.ENUM('aktif', 'nonaktif', 'suspended'),
     defaultValue: 'aktif'
   },
+  role: {
+    type: DataTypes.ENUM('member', 'admin', 'superadmin'),
+    defaultValue: 'member'
+  },
   tanggal_bergabung: {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW

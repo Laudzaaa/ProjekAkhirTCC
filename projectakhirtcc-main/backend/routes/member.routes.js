@@ -6,9 +6,10 @@ import {
   updateMemberProfile,
   getAllMembers,
   getMemberById,
-  deleteMember
+  deleteMember,
+  updateMemberRole
 } from '../controllers/member.controller.js';
-import { verifyToken } from '../middleware/verifyToken.js';
+import { verifyToken, isSuperAdmin } from '../middleware/verifyToken.js';
 
 const router = express.Router();
 
@@ -24,5 +25,8 @@ router.put('/profile', verifyToken, updateMemberProfile);
 router.get('/', verifyToken, getAllMembers);
 router.get('/:id', verifyToken, getMemberById);
 router.delete('/:id', verifyToken, deleteMember);
+
+// Superadmin only - change member role
+router.put('/:id/role', verifyToken, isSuperAdmin, updateMemberRole);
 
 export default router;

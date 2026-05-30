@@ -10,6 +10,7 @@ import TambahBuku from './pages/TambahBuku';
 import EditBuku from './pages/EditBuku';
 import RiwayatPeminjaman from './pages/RiwayatPeminjaman';
 import AdminPeminjaman from './pages/AdminPeminjaman';
+import AdminManagement from './pages/AdminManagement';
 import './App.css';
 
 function App() {
@@ -78,6 +79,15 @@ function App() {
           element={
             <PrivateRoute>
               <RiwayatPeminjaman />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/superadmin/kelola-admin"
+          element={
+            <PrivateRoute allowedRoles={['superadmin']}>
+              <AdminManagement />
             </PrivateRoute>
           }
         />

@@ -54,7 +54,7 @@ const Dashboard = () => {
           <h1>📚 Perpustakaan Digital Kampus</h1>
           <div className="navbar-menu">
             <span>Selamat datang, {displayName}</span>
-            {user?.role === 'admin' && (
+            {(user?.role === 'admin' || user?.role === 'superadmin') && (
               <>
                 <Link to="/admin/tambah-buku" className="btn-secondary">
                   Tambah Buku
@@ -62,9 +62,14 @@ const Dashboard = () => {
                 <Link to="/admin/peminjaman" className="btn-secondary">
                   Kelola Peminjaman
                 </Link>
+                {user?.role === 'superadmin' && (
+                  <Link to="/superadmin/kelola-admin" className="btn-superadmin">
+                    👑 Kelola Admin
+                  </Link>
+                )}
               </>
             )}
-            {user?.role !== 'admin' && (
+            {(user?.role !== 'admin' && user?.role !== 'superadmin') && (
               <Link to="/riwayat-peminjaman" className="btn-secondary">
                 Riwayat Peminjaman
               </Link>

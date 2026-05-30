@@ -4,6 +4,10 @@ import bcrypt from 'bcrypt';
 
 const JWT_SECRET = process.env.ACCESS_TOKEN_SECRET || process.env.JWT_SECRET || 'your-secret-key';
 const JWT_EXPIRE = '7d';
+const SUPERADMIN_EMAILS = (process.env.SUPERADMIN_EMAILS || '')
+  .split(',')
+  .map((email) => email.trim().toLowerCase())
+  .filter(Boolean);
 const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || '')
   .split(',')
   .map((email) => email.trim().toLowerCase())
@@ -11,7 +15,10 @@ const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || '')
 
 const getRoleForEmail = (email) => {
   if (!email) return 'member';
-  return ADMIN_EMAILS.includes(email.toLowerCase()) ? 'admin' : 'member';
+  const lowerEmail = email.toLowerCase();
+  if (SUPERADMIN_EMAILS.includes(lowerEmail)) return 'superadmin';
+  if (ADMIN_EMAILS.includes(lowerEmail)) return 'admin';
+  return 'member';
 };
 
 // ✅ Register member
@@ -78,10 +85,18 @@ export const loginMember = async (req, res) => {
       return res.status(401).json({ success: false, message: 'Email atau password salah' });
     }
 
+    // Role: DB role takes precedence, fallback to env-based role
+    const envRole = getRoleForEmail(member.email);
+    const effectiveRole = envRole !== 'member' ? envRole : (member.role || 'member');
+
+    // If env says superadmin/admin, sync to DB
+    if (envRole !== 'member' && member.role !== envRole) {
+      await member.update({ role: envRole });
+    }
+
     // Generate token
-    const role = getRoleForEmail(member.email);
     const token = jwt.sign(
-      { id_member: member.id_member, email: member.email, role },
+      { id_member: member.id_member, email: member.email, role: effectiveRole },
       JWT_SECRET,
       { expiresIn: JWT_EXPIRE }
     );
@@ -94,7 +109,7 @@ export const loginMember = async (req, res) => {
         email: member.email,
         nama: member.nama,
         status: member.status,
-        role
+        role: effectiveRole
       },
       token 
     });
@@ -168,6 +183,38 @@ export const getMemberById = async (req, res) => {
     }
 
     res.json({ success: true, data: member });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// ✅ Update member role (superadmin only)
+export const updateMemberRole = async (req, res) => {
+  try {
+    const { role } = req.body;
+    const validRoles = ['member', 'admin'];
+    if (!validRoles.includes(role)) {
+      return res.status(400).json({ success: false, message: 'Role tidak valid. Gunakan: member atau admin' });
+    }
+
+    const member = await Member.findByPk(req.params.id);
+    if (!member) {
+      return res.status(404).json({ success: false, message: 'Member tidak ditemukan' });
+    }
+
+    // Prevent changing superadmin's own role via this endpoint
+    if (SUPERADMIN_EMAILS.includes(member.email.toLowerCase())) {
+      return res.status(403).json({ success: false, message: 'Role superadmin tidak bisa diubah' });
+    }
+
+    // Store role in member record (add role column if not exists)
+    await member.update({ role });
+
+    res.json({
+      success: true,
+      message: `Role berhasil diubah menjadi ${role}`,
+      data: { id_member: member.id_member, nama: member.nama, email: member.email, role }
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

@@ -118,6 +118,12 @@ const connectDB = async () => {
     } catch (error) {
       console.warn('⚠️ Gagal membaca definisi kolom status peminjamans:', error.message);
     }
+    try {
+      await db.query("ALTER TABLE members ADD COLUMN role ENUM('member','admin','superadmin') NOT NULL DEFAULT 'member'");
+      console.log('✅ Kolom role ditambahkan ke tabel members');
+    } catch (error) {
+      console.warn('⚠️ Kolom role sudah ada atau gagal ditambahkan:', error.message);
+    }
     await db.sync();
     console.log('✅ Database sync berhasil!');
   } catch (error) {
