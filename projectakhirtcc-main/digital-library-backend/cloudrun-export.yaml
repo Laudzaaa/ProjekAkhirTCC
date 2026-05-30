@@ -1,0 +1,66 @@
+﻿apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  annotations:
+    run.googleapis.com/build-enable-automatic-updates: 'false'
+    run.googleapis.com/build-id: 6795e59a-0809-4be5-b594-2aef7724bcea
+    run.googleapis.com/build-image-uri: asia-southeast2-docker.pkg.dev/e-31-489014/cloud-run-source-deploy/digital-library-backend
+    run.googleapis.com/build-name: projects/132702792159/locations/asia-southeast2/builds/6795e59a-0809-4be5-b594-2aef7724bcea
+    run.googleapis.com/build-source-location: gs://run-sources-e-31-489014-asia-southeast2/services/digital-library-backend/1780142150.308057-147179df44644945b07c30d6b45d308b.zip#1780142150515902
+    run.googleapis.com/ingress: all
+    run.googleapis.com/ingress-status: all
+    run.googleapis.com/maxScale: '20'
+    run.googleapis.com/urls: '["https://digital-library-backend-132702792159.asia-southeast2.run.app","https://digital-library-backend-ja2nrjpyia-et.a.run.app"]'
+  labels:
+    cloud.googleapis.com/location: asia-southeast2
+    run.googleapis.com/satisfiesPzs: 'true'
+  name: digital-library-backend
+  namespace: '132702792159'
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/maxScale: '20'
+        run.googleapis.com/client-name: gcloud
+        run.googleapis.com/client-version: 560.0.0
+        run.googleapis.com/cloudsql-instances: e-31-489014:asia-southeast2:perpus-instance,e-31-489014:asia-southeast1:perpustakaan-mysql
+        run.googleapis.com/startup-cpu-boost: 'true'
+      labels:
+        client.knative.dev/nonce: smobnwsjjt
+        run.googleapis.com/startupProbeType: Default
+    spec:
+      containerConcurrency: 80
+      containers:
+      - env:
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: latest
+              name: DB_PASSWORD_SECRET
+        - name: DB_USER
+          value: perpustakaan
+        - name: DB_NAME
+          value: perpustakaan_db
+        - name: CLOUD_SQL_CONNECTION_NAME
+          value: e-31-489014:asia-southeast1:perpustakaan-mysql
+        - name: CORS_ORIGIN
+          value: https://frontend-service-dot-e-31-489014.et.r.appspot.com
+        image: asia-southeast2-docker.pkg.dev/e-31-489014/cloud-run-source-deploy/digital-library-backend@sha256:efe578a5be218c191b5edbd12618e15cafff4f874a61dd3291f579e607916388
+        ports:
+        - containerPort: 8080
+          name: http1
+        resources:
+          limits:
+            cpu: 1000m
+            memory: 512Mi
+        startupProbe:
+          failureThreshold: 1
+          periodSeconds: 240
+          tcpSocket:
+            port: 8080
+          timeoutSeconds: 240
+      serviceAccountName: 132702792159-compute@developer.gserviceaccount.com
+      timeoutSeconds: 300
+  traffic:
+  - percent: 100
+    revisionName: digital-library-backend-00030-t62

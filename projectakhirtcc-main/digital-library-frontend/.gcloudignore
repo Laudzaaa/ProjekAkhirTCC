@@ -1,4 +1,18 @@
-.git
+# Ignore everything by default, then allow build and app.yaml
+*
+!.gcloudignore
+!build/
+!build/**
+!app.yaml
+
+# Optional: ignore local files
+node_modules/
+.git/
+src/
+public/
+package.json
+package-lock.json
+README.md.git
 .gitignore
 README.md
 .env
