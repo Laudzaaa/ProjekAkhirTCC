@@ -1,11 +1,11 @@
-# Ignore unnecessary files
 node_modules/
-.git/
-.env
-.env.local
+.git
 .gitignore
 README.md
-*.md
+.env
+.env.local
 .DS_Store
-npm-debug.log
-.eslintcache
+
+# Keep build artifacts and lock file for App Engine deploy
+!build/
+!package-lock.json

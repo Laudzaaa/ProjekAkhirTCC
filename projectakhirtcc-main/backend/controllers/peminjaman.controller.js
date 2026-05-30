@@ -7,6 +7,8 @@ export const createPeminjaman = async (req, res) => {
     const { id_buku, durasi_hari = 7 } = req.body;
     const id_member = req.user.id_member;
 
+    console.log('➡️ createPeminjaman payload:', { body: req.body, user: { id_member } });
+
     // Check if book exists
     const buku = await Buku.findByPk(id_buku);
     if (!buku) {
@@ -23,23 +25,76 @@ export const createPeminjaman = async (req, res) => {
     const tanggal_kembali_rencana = new Date();
     tanggal_kembali_rencana.setDate(tanggal_kembali_rencana.getDate() + durasi_hari);
 
-    // Create peminjaman record
+    // Create peminjaman record (pending approval)
     const peminjaman = await Peminjaman.create({
       id_member,
       id_buku,
       tanggal_peminjaman,
       tanggal_kembali_rencana,
-      status: 'aktif'
+      status: 'pending'
     });
 
-    // Update stok_tersedia
-    await buku.update({ stok_tersedia: buku.stok_tersedia - 1 });
-
+    // Note: Stock is NOT deducted until admin approves
     res.status(201).json({ 
       success: true, 
-      message: 'Peminjaman berhasil dibuat',
+      message: 'Permintaan peminjaman dibuat. Menunggu persetujuan admin.',
       data: peminjaman 
     });
+  } catch (error) {
+    console.error('❌ createPeminjaman error:', { body: req.body, message: error.message, stack: error.stack });
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// ✅ Admin approve peminjaman
+export const approvePeminjaman = async (req, res) => {
+  try {
+    const { id_peminjaman } = req.params;
+    const peminjaman = await Peminjaman.findByPk(id_peminjaman);
+    
+    if (!peminjaman) {
+      return res.status(404).json({ success: false, message: 'Peminjaman tidak ditemukan' });
+    }
+
+    if (peminjaman.status !== 'pending') {
+      return res.status(400).json({ success: false, message: 'Hanya peminjaman pending yang bisa disetujui' });
+    }
+
+    const buku = await Buku.findByPk(peminjaman.id_buku);
+    if (!buku || buku.stok_tersedia <= 0) {
+      return res.status(400).json({ success: false, message: 'Stok buku tidak tersedia' });
+    }
+
+    // Update peminjaman status
+    await peminjaman.update({ status: 'aktif' });
+
+    // Deduct stock
+    await buku.update({ stok_tersedia: buku.stok_tersedia - 1 });
+
+    res.json({ success: true, message: 'Peminjaman disetujui', data: peminjaman });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// ✅ Admin reject peminjaman
+export const rejectPeminjaman = async (req, res) => {
+  try {
+    const { id_peminjaman } = req.params;
+    const peminjaman = await Peminjaman.findByPk(id_peminjaman);
+    
+    if (!peminjaman) {
+      return res.status(404).json({ success: false, message: 'Peminjaman tidak ditemukan' });
+    }
+
+    if (peminjaman.status !== 'pending') {
+      return res.status(400).json({ success: false, message: 'Hanya peminjaman pending yang bisa ditolak' });
+    }
+
+    // Delete peminjaman record
+    await peminjaman.destroy();
+
+    res.json({ success: true, message: 'Peminjaman ditolak dan dihapus' });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

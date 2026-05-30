@@ -5,9 +5,8 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install
 
-# Salin semua file termasuk .env dari direktori build (hasil cloudbuild step)
-COPY . . 
-COPY .env .env
+# Salin semua file sumber aplikasi
+COPY . .
 
 # Set mode produksi
 ENV NODE_ENV=production

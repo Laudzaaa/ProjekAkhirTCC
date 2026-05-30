@@ -11,9 +11,11 @@ Aplikasi ini menyediakan solusi lengkap untuk manajemen dan akses koleksi buku a
 ✨ **Modern Tech Stack** - React + Node.js + Firebase + Google Cloud
 💰 **Cost Effective** - Pricing terjangkau dengan free tier yang cukup
 🚀 **Scalable** - Siap untuk jutaan pengguna
-🔒 **Secure** - Authentication JWT, Firestore security rules
+🔒 **Secure** - Authentication JWT, role-based access control
 📱 **Responsive** - Mobile-friendly interface
 ⚡ **Fast** - Cloud CDN, optimized queries
+
+🔐 **Deployment security** - Prefer Cloud SQL socket connections for App Engine and store secrets in Secret Manager (avoid committing DB passwords in repo)
 
 ## 📂 Project Structure
 
@@ -127,10 +129,10 @@ npm start
 
 ### System Features
 - ✅ JWT authentication
-- ✅ Firestore database
+- ✅ MySQL database
 - ✅ Google Cloud Storage untuk files
-- ✅ Cloud Run ready deployment
-- ✅ Security rules pada Firestore
+- ✅ App Engine ready deployment
+- ✅ Cloud SQL ready deployment
 - ✅ CORS enabled
 - ✅ Error handling
 
@@ -141,9 +143,9 @@ npm start
 |-----------|-----------|
 | Runtime | Node.js |
 | Framework | Express.js |
-| Database | Google Cloud Firestore |
+| Database | MySQL / Cloud SQL |
 | Storage | Google Cloud Storage |
-| Authentication | Firebase Auth + JWT |
+| Authentication | JWT |
 | File Upload | Multer |
 | Security | Bcrypt, JWT |
 
@@ -159,18 +161,18 @@ npm start
 ### Infrastructure
 | Service | Provider |
 |---------|----------|
-| Database | Google Cloud Firestore |
+| Database | Cloud SQL |
 | File Storage | Google Cloud Storage |
 | Backend Hosting | Google Cloud Run |
-| Frontend Hosting | Firebase Hosting |
+| Frontend Hosting | Google App Engine |
 | CI/CD | Cloud Build |
 
 ## 📊 Database Schema
 
-### Collections di Firestore
+### Tabel MySQL
 
 ```
-users/
+users
 ├── uid
 ├── email
 ├── fullName
@@ -178,7 +180,7 @@ users/
 ├── role (user/admin)
 └── profilePicture
 
-books/
+vehicles
 ├── id
 ├── title
 ├── author
@@ -191,28 +193,60 @@ books/
 ├── downloads
 └── reviews[]
 
-favorites/
+rentals
+├── id
+├── user_id
+├── vehicle_id
+├── start_date
+└── status
+
+payments
+├── id
+├── rental_id
+├── amount
+└── status
+
+reviews
+├── id
+├── user_id
+├── vehicle_id
+├── rating
+└── comment
+
+favorites
 ├── userId
 └── bookId
 
-reviews/
-├── bookId
-├── userId
-├── rating (1-5)
-├── comment
-└── createdAt
+books
+├── id
+├── title
+├── author
+├── category
+└── file_url
 
-download_history/
-├── userId
-├── bookId
-└── downloadedAt
+members
+├── id
+├── name
+├── email
+└── phone
+
+peminjamans
+├── id
+├── id_member
+├── id_buku
+└── status
+
+pengembalians
+├── id
+├── id_peminjaman
+└── tanggal_kembali
 ```
 
 ## 🔐 Security
 
 - 🔒 Password hashing dengan bcrypt
 - 🔐 JWT token (7 hari expiry)
-- 🛡️ Firestore security rules
+- 🛡️ Role-based access control
 - 🚫 CORS whitelist
 - ✅ File upload validation
 - 👮 Role-based access control
@@ -222,11 +256,11 @@ download_history/
 
 | Service | Price | Notes |
 |---------|-------|-------|
-| **Firestore** | $5-10 | 50K reads/day gratis |
+| **Cloud SQL** | $5-15 | MySQL managed database |
 | **Cloud Storage** | $1-5 | 5GB/month gratis (year 1) |
-| **Cloud Run** | $5-15 | 2M requests gratis |
+| **App Engine** | $5-15 | Standard environment |
 | **Firebase Auth** | $0-5 | 50K sign-ups gratis |
-| **Total** | **$15-35** | ✨ Very affordable! |
+| **Total** | **$11-35** | ✨ Very affordable! |
 
 **Catatan:** Pricing bisa lebih murah dengan optimasi dan free tier.
 
@@ -237,12 +271,20 @@ download_history/
 ### Backend ke Cloud Run
 
 ```bash
-cd digital-library-backend
-gcloud builds submit --tag gcr.io/PROJECT_ID/digital-library-backend
-gcloud run deploy digital-library-backend --image gcr.io/PROJECT_ID/digital-library-backend
+gcloud run deploy digital-library-backend \
+  --source backend \
+  --region asia-southeast2 \
+  --allow-unauthenticated
 ```
 
-### Frontend ke Firebase Hosting
+### Frontend ke App Engine
+
+```bash
+cd digital-library-frontend
+gcloud app deploy app.yaml
+```
+
+Atau, jika frontend kamu masih dikelola lewat hosting statis lain, set `REACT_APP_API_URL` ke URL Cloud Run backend di atas.
 
 ```bash
 cd digital-library-frontend
@@ -361,7 +403,8 @@ npm install
 - [Express.js Guide](https://expressjs.com/)
 - [React Documentation](https://react.dev/)
 - [Google Cloud Documentation](https://cloud.google.com/docs)
-- [Firestore Best Practices](https://firebase.google.com/docs/firestore/best-practices)
+- [Cloud SQL Documentation](https://cloud.google.com/sql/docs)
+- [App Engine Documentation](https://cloud.google.com/appengine/docs)
 
 ## 🤝 Contributing
 
@@ -397,10 +440,10 @@ Dikembangkan oleh Digital Library Development Team
 
 - **Backend:** Node.js + Express.js
 - **Frontend:** React 18
-- **Database:** Firestore
+- **Database:** MySQL / Cloud SQL
 - **Storage:** Google Cloud Storage
 - **Authentication:** JWT + Firebase Auth
-- **Deployment:** Cloud Run + Firebase Hosting
+- **Deployment:** Cloud Run + App Engine
 - **Estimated Setup Time:** 5 minutes
 - **Est. Monthly Cost:** $15-35
 

@@ -3,20 +3,29 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-// Initialize Firebase Admin SDK
-const firebaseConfig = {
-  projectId: process.env.FIREBASE_PROJECT_ID,
-  privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-  clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-};
+const hasServiceAccountKey =
+  process.env.FIREBASE_PROJECT_ID &&
+  process.env.FIREBASE_PRIVATE_KEY &&
+  process.env.FIREBASE_CLIENT_EMAIL;
 
 if (!admin.apps.length) {
   try {
-    admin.initializeApp({
-      credential: admin.credential.cert(firebaseConfig),
+    const appConfig = {
       databaseURL: process.env.FIREBASE_DATABASE_URL,
       storageBucket: process.env.GCS_BUCKET_NAME,
-    });
+    };
+
+    if (hasServiceAccountKey) {
+      appConfig.credential = admin.credential.cert({
+        projectId: process.env.FIREBASE_PROJECT_ID,
+        privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\n/g, '\n'),
+        clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+      });
+    } else {
+      appConfig.credential = admin.credential.applicationDefault();
+    }
+
+    admin.initializeApp(appConfig);
     console.log('✅ Firebase Admin SDK initialized successfully');
   } catch (error) {
     console.error('❌ Error initializing Firebase Admin SDK:', error);

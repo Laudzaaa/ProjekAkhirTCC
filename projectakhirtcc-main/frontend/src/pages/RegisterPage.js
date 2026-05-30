@@ -1,139 +1,102 @@
 import React, { useState } from 'react';
-import api from '../api/axios';
-import { toast } from 'react-toastify';
-import { useNavigate } from 'react-router-dom';
-import { Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import { userAPI } from '../api/api';
+import '../styles/Auth.css';
 
 const RegisterPage = () => {
   const navigate = useNavigate();
-  const [form, setForm] = useState({
-    name: '',
-    email: '',
-    password: '',
-  });
-
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
+  const [fullName, setFullName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const handleRegister = async (e) => {
     e.preventDefault();
+    setError('');
+
+    if (password !== confirmPassword) {
+      setError('Password tidak cocok');
+      return;
+    }
+
+    setLoading(true);
+
     try {
-      await api.post('/users/register', form);
-      toast.success('🎉 Akun berhasil dibuat! Mengarahkan ke login...');
-      setTimeout(() => {
-        navigate('/login');
-      }, 2000);
+      await userAPI.register({ nama: fullName, email, password });
+      navigate('/login');
     } catch (err) {
-      toast.error(err.response?.data?.message || '❌ Gagal mendaftar');
+      setError(err.response?.data?.message || 'Registrasi gagal');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div style={styles.container}>
-      <div style={styles.card}>
-        <h2 style={styles.title}>Buat Akun Baru</h2>
-        <form onSubmit={handleRegister} style={styles.form}>
-          <input
-            type="text"
-            name="name"
-            placeholder="Nama Lengkap"
-            value={form.name}
-            onChange={handleChange}
-            required
-            style={styles.input}
-          />
-          <input
-            type="email"
-            name="email"
-            placeholder="Email"
-            value={form.email}
-            onChange={handleChange}
-            required
-            style={styles.input}
-          />
-          <input
-            type="password"
-            name="password"
-            placeholder="Password"
-            value={form.password}
-            onChange={handleChange}
-            required
-            style={styles.input}
-          />
-          <button type="submit" style={styles.button}>
-            Daftar
+    <div className="auth-container">
+      <div className="auth-card">
+        <h1>📚 Perpustakaan Digital</h1>
+        <h2>Daftar</h2>
+
+        {error && <div className="error-message">{error}</div>}
+
+        <form onSubmit={handleRegister}>
+          <div className="form-group">
+            <label htmlFor="fullName">Nama Lengkap:</label>
+            <input
+              id="fullName"
+              type="text"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="email">Email:</label>
+            <input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="password">Password:</label>
+            <input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="confirmPassword">Konfirmasi Password:</label>
+            <input
+              id="confirmPassword"
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+            />
+          </div>
+
+          <button type="submit" disabled={loading} className="btn-primary">
+            {loading ? 'Loading...' : 'Daftar'}
           </button>
         </form>
-        <p style={styles.loginText}>
-          Sudah punya akun?{' '}
-          <Link to="/login" style={styles.loginLink}>Masuk di sini</Link>
+
+        <p>
+          Sudah punya akun? <Link to="/login">Login di sini</Link>
         </p>
       </div>
     </div>
   );
-};
-
-const styles = {
-  container: {
-    minHeight: '100vh',
-    background: '#0f0f1a',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  card: {
-    width: '100%',
-    maxWidth: 420,
-    background: '#181824',
-    borderRadius: 16,
-    padding: '30px 25px',
-    boxShadow: '0 8px 30px rgba(0, 0, 0, 0.5)',
-  },
-  title: {
-    color: '#fff',
-    fontSize: 24,
-    marginBottom: 25,
-    fontWeight: 700,
-    textAlign: 'center',
-    letterSpacing: 1.2,
-  },
-  form: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 15,
-  },
-  input: {
-    padding: 12,
-    fontSize: 15,
-    borderRadius: 8,
-    border: '1px solid #555',
-    outline: 'none',
-    background: '#1e1e2f',
-    color: '#fff',
-  },
-  button: {
-    padding: 12,
-    background: 'linear-gradient(to right, #ff0080, #7928ca)',
-    color: '#fff',
-    fontWeight: 600,
-    border: 'none',
-    borderRadius: 8,
-    fontSize: 16,
-    cursor: 'pointer',
-  },
-  loginText: {
-    marginTop: 20,
-    color: '#ccc',
-    fontSize: 14,
-    textAlign: 'center',
-  },
-  loginLink: {
-    color: '#ff4dc4',
-    fontWeight: 'bold',
-    textDecoration: 'none',
-  },
 };
 
 export default RegisterPage;

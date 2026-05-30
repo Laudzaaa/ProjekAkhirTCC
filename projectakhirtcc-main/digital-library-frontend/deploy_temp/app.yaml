@@ -1,0 +1,17 @@
+runtime: python310
+service: frontend-service
+
+handlers:
+  - url: /favicon.ico
+    static_files: build/favicon.ico
+    upload: build/favicon.ico
+
+  - url: /static
+    static_dir: build/static
+
+  - url: /assets
+    static_dir: build/assets
+
+  - url: /.*
+    static_files: build/index.html
+    upload: build/index.html

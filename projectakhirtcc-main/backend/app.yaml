@@ -1,21 +1,31 @@
 runtime: nodejs22
 env: standard
+instance_class: F2
+
 automatic_scaling:
   min_instances: 1
   max_instances: 5
+beta_settings:
+  # Replace with your Cloud SQL instance connection name: PROJECT:REGION:INSTANCE
+  cloud_sql_instances: YOUR_PROJECT_ID:asia-southeast2:YOUR_CLOUD_SQL_INSTANCE
 
 env_variables:
   NODE_ENV: "production"
   PORT: "8080"
-  DB_HOST: "34.21.239.57"
+  # Use the Cloud SQL Unix socket via CLOUD_SQL_CONNECTION_NAME in the app
+  CLOUD_SQL_CONNECTION_NAME: "YOUR_PROJECT_ID:asia-southeast2:YOUR_CLOUD_SQL_INSTANCE"
   DB_USER: "perpustakaan"
-  DB_PASSWORD: "PerpustakaanMySQL123"
+  DB_PASSWORD: "CHANGE_ME" # store in Secret Manager and inject via secrets mapping
   DB_NAME: "perpustakaan_db"
-  DB_PORT: "3306"
-  JWT_SECRET: "perpustakaan-mysql-secret-2025"
-  ACCESS_TOKEN_SECRET: "perpustakaan-access-secret"
-  REFRESH_TOKEN_SECRET: "perpustakaan-refresh-secret"
+  JWT_SECRET: "CHANGE_ME"
+  ACCESS_TOKEN_SECRET: "CHANGE_ME"
+  REFRESH_TOKEN_SECRET: "CHANGE_ME"
+  ADMIN_EMAILS: "naufal@gmail.com"
 
-handlers:
-  - url: /.*
-    script: auto
+# Example: use Secret Manager to inject DB_PASSWORD securely (uncomment and
+# replace SECRET_NAME with your secret resource). App Engine standard supports
+# a `secrets` field mapping secret versions to environment variables.
+# secrets:
+# - secret: projects/YOUR_PROJECT_ID/secrets/DB_PASSWORD_SECRET
+#   version: latest
+#   env: DB_PASSWORD

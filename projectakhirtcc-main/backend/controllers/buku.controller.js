@@ -67,10 +67,63 @@ export const updateBuku = async (req, res) => {
   try {
     const book = await Buku.findByPk(req.params.id);
     if (!book) return res.status(404).json({ success: false, message: 'Buku tidak ditemukan' });
-    
-    await book.update(req.body);
+
+    const body = req.body || {};
+    if (!req.body) {
+      return res.status(400).json({ success: false, message: 'Request body kosong' });
+    }
+
+    const updates = {};
+    const allowedFields = [
+      'judul',
+      'pengarang',
+      'penerbit',
+      'isbn',
+      'kategori',
+      'tahun_terbit',
+      'lokasi',
+      'deskripsi',
+      'foto_url'
+    ];
+
+    allowedFields.forEach((field) => {
+      if (body[field] !== undefined) {
+        updates[field] = body[field];
+      }
+    });
+
+    if (body.stok !== undefined) {
+      const newStock = Number(body.stok);
+      if (Number.isNaN(newStock) || newStock < 0) {
+        return res.status(400).json({ success: false, message: 'Stok tidak valid' });
+      }
+
+      let newAvailable = undefined;
+      if (body.stok_tersedia !== undefined) {
+        const requestedAvailable = Number(body.stok_tersedia);
+        if (Number.isNaN(requestedAvailable) || requestedAvailable < 0) {
+          return res.status(400).json({ success: false, message: 'Stok tersedia tidak valid' });
+        }
+        newAvailable = Math.min(newStock, requestedAvailable);
+      } else {
+        const delta = newStock - Number(book.stok || 0);
+        const currentAvailable = Number(book.stok_tersedia || 0);
+        newAvailable = Math.max(0, Math.min(newStock, currentAvailable + delta));
+      }
+
+      updates.stok = newStock;
+      updates.stok_tersedia = newAvailable;
+    }
+
+    await book.update(updates);
     res.json({ success: true, data: book });
   } catch (error) {
+    console.error('❌ updateBuku error:', {
+      id: req.params.id,
+      body: req.body,
+      message: error.message,
+      stack: error.stack
+    });
     res.status(500).json({ success: false, message: error.message });
   }
 };

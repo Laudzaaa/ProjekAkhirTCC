@@ -1,70 +1,249 @@
-# Getting Started with Create React App
+# Perpustakaan Digital Kampus
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Aplikasi perpustakaan digital kampus yang modern dengan backend Express.js dan frontend React, menggunakan Google Cloud Platform dengan Firestore database.
 
-## Available Scripts
+## Fitur
 
-In the project directory, you can run:
+✅ **Authentication** - Login/Register dengan JWT Token  
+✅ **Book Management** - Kelola koleksi buku akademik  
+✅ **Book Upload** - Upload file PDF/EPUB/MOBI ke Google Cloud Storage  
+✅ **Favorites** - Tandai buku favorit  
+✅ **Reviews & Rating** - Beri review dan rating untuk buku  
+✅ **Search & Filter** - Cari buku berdasarkan kategori  
+✅ **Admin Panel** - Panel admin untuk menambah/edit/hapus buku  
 
-### `npm start`
+## Tech Stack
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### Backend
+- Node.js + Express.js
+- Firebase Admin SDK
+- Google Cloud Firestore
+- Google Cloud Storage
+- JWT Authentication
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### Frontend
+- React 18
+- React Router v6
+- Axios
+- CSS3
 
-### `npm test`
+## Setup Lokal
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### Prerequisites
+- Node.js >= 14
+- npm atau yarn
+- Google Cloud Project dengan Firebase enabled
+- Service Account Key dari GCP
 
-### `npm run build`
+### Backend Setup
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+```bash
+cd digital-library-backend
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+# Install dependencies
+npm install
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+# Buat file .env
+cp .env.example .env
 
-### `npm run eject`
+# Edit .env dengan konfigurasi Firebase Anda
+# FIREBASE_PROJECT_ID=your-project-id
+# FIREBASE_PRIVATE_KEY=your-private-key
+# FIREBASE_CLIENT_EMAIL=your-service-account-email
+# FIREBASE_DATABASE_URL=your-db-url
+# GCS_BUCKET_NAME=your-bucket-name
+# JWT_SECRET=your-secret-key
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+# Jalankan development server
+npm run dev
+```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Server akan berjalan di `http://localhost:3001`
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+### Frontend Setup
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+```bash
+cd digital-library-frontend
 
-## Learn More
+# Install dependencies
+npm install
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+# Buat file .env
+echo "REACT_APP_API_URL=http://localhost:3001/api" > .env
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+# Jalankan development server
+npm start
+```
 
-### Code Splitting
+App akan berjalan di `http://localhost:3000`
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+## API Endpoints
 
-### Analyzing the Bundle Size
+### Users
+- `POST /api/users/register` - Register user baru
+- `POST /api/users/login` - Login user
+- `GET /api/users/profile` - Get user profile
+- `PUT /api/users/profile` - Update user profile
+- `GET /api/users` - Get all users (admin only)
+- `DELETE /api/users/:uid` - Delete user (admin only)
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+### Books
+- `GET /api/books` - Get all books
+- `GET /api/books/:id` - Get book detail
+- `POST /api/books` - Create book (admin only)
+- `PUT /api/books/:id` - Update book (admin only)
+- `DELETE /api/books/:id` - Delete book (admin only)
+- `POST /api/books/:id/download` - Download book
 
-### Making a Progressive Web App
+### Favorites
+- `GET /api/favorites` - Get user favorites
+- `POST /api/favorites` - Add to favorites
+- `DELETE /api/favorites/:bookId` - Remove from favorites
+- `GET /api/favorites/check/:bookId` - Check if book is favorite
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+### Reviews
+- `GET /api/reviews/:bookId` - Get book reviews
+- `POST /api/reviews` - Create review
+- `PUT /api/reviews/:reviewId` - Update review
+- `DELETE /api/reviews/:reviewId` - Delete review
 
-### Advanced Configuration
+## Google Cloud Setup
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+Lihat [GOOGLE_CLOUD_SETUP.md](./GOOGLE_CLOUD_SETUP.md) untuk panduan setup Google Cloud yang ekonomis.
 
-### Deployment
+## Database Schema (Firestore)
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+### Collections
 
-### `npm run build` fails to minify
+**users**
+```
+{
+  uid: string
+  email: string
+  fullName: string
+  password: string (hashed)
+  role: 'user' | 'admin'
+  profilePicture: string (optional)
+  bio: string
+  isActive: boolean
+  createdAt: timestamp
+  updatedAt: timestamp
+}
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+**books**
+```
+{
+  id: string
+  title: string
+  author: string
+  isbn: string (optional)
+  description: string
+  category: string
+  publishYear: number
+  fileUrl: string (GCS URL)
+  fileName: string
+  coverImage: string (optional)
+  totalCopies: number
+  availableCopies: number
+  downloads: number
+  rating: number
+  reviews: array
+  uploadedBy: string (userId)
+  createdAt: timestamp
+  updatedAt: timestamp
+}
+```
+
+**favorites**
+```
+{
+  id: string
+  userId: string
+  bookId: string
+  addedAt: timestamp
+}
+```
+
+**reviews**
+```
+{
+  id: string
+  bookId: string
+  userId: string
+  rating: 1-5
+  comment: string
+  helpful: number
+  createdAt: timestamp
+  updatedAt: timestamp
+}
+```
+
+**download_history**
+```
+{
+  userId: string
+  bookId: string
+  downloadedAt: timestamp
+}
+```
+
+## Deployment
+
+### Deploy Backend ke Cloud Run
+
+```bash
+# Di folder digital-library-backend
+
+# Build Docker image
+gcloud builds submit --tag gcr.io/YOUR_PROJECT_ID/digital-library-backend
+
+# Deploy ke Cloud Run
+gcloud run deploy digital-library-backend \
+  --image gcr.io/YOUR_PROJECT_ID/digital-library-backend \
+  --platform managed \
+  --region us-central1 \
+  --set-env-vars FIREBASE_PROJECT_ID=YOUR_PROJECT_ID,FIREBASE_CLIENT_EMAIL=YOUR_EMAIL,etc.
+```
+
+### Deploy Frontend ke Firebase Hosting
+
+```bash
+# Di folder digital-library-frontend
+
+# Build production
+npm run build
+
+# Deploy
+firebase deploy --only hosting
+```
+
+## Environment Variables
+
+### Backend (.env)
+```
+FIREBASE_PROJECT_ID=
+FIREBASE_PRIVATE_KEY=
+FIREBASE_CLIENT_EMAIL=
+FIREBASE_DATABASE_URL=
+GCS_BUCKET_NAME=
+JWT_SECRET=
+PORT=3001
+NODE_ENV=development
+CORS_ORIGIN=http://localhost:3000
+MAX_FILE_SIZE=52428800
+ALLOWED_FILE_TYPES=pdf,epub,mobi,txt,doc,docx
+```
+
+### Frontend (.env)
+```
+REACT_APP_API_URL=http://localhost:3001/api
+```
+
+## License
+
+ISC
+
+## Support
+
+Untuk bantuan, silakan buat issue di repository ini.

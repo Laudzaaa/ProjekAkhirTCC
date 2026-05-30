@@ -40,8 +40,23 @@ const app = express();
 console.log('🚀 Memulai backend...');
 
 // Middleware global
-app.use(cors());
-app.use(express.json());
+// CORS configuration
+const corsOptions = {
+  origin: [
+    'https://frontend-service-dot-e-31-489014.et.r.appspot.com',
+    'https://e-31-489014.et.r.appspot.com',
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://localhost:5000'
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+};
+
+app.use(cors(corsOptions));
+app.use(express.json({ limit: '1mb' }));
+app.use(express.urlencoded({ extended: true }));
 
 // API Routing - Rental Vehicle API
 app.use('/api/users', userRoutes);
@@ -57,9 +72,21 @@ app.use('/api/library/member', memberRoutes);
 app.use('/api/library/peminjaman', peminjamanRoutes);
 app.use('/api/library/pengembalian', pengembalianRoutes);
 
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    status: 'ok',
+    service: 'backend-api',
+    timestamp: new Date().toISOString(),
+  });
+});
+
 // Root endpoint
 app.get('/', (req, res) => {
-  res.send('✅ API Server Aktif - Rental Kendaraan & Perpustakaan 🚗📚');
+  res.status(200).json({
+    message: '✅ REST API Aktif - Rental Kendaraan & Perpustakaan 🚗📚',
+    deployment: 'App Engine standard',
+  });
 });
 
 // 404 fallback
@@ -73,17 +100,40 @@ const connectDB = async () => {
     console.log('🔌 Menghubungkan ke database...');
     await db.authenticate();
     console.log('✅ Koneksi database berhasil!');
+    try {
+      await db.query('ALTER TABLE bukus MODIFY foto_url TEXT');
+      console.log('✅ Kolom foto_url diperbarui ke TEXT');
+    } catch (error) {
+      console.warn('⚠️ Tidak dapat mengubah kolom foto_url:', error.message);
+    }
+    try {
+      await db.query("ALTER TABLE peminjamans MODIFY status ENUM('pending','aktif','dikembalikan','hilang') NOT NULL DEFAULT 'pending'");
+      console.log("✅ Kolom status pada tabel peminjamans diperbarui (ENUM)");
+    } catch (error) {
+      console.warn('⚠️ Tidak dapat mengubah kolom status peminjamans:', error.message);
+    }
+    try {
+      const [cols] = await db.query("SHOW COLUMNS FROM peminjamans LIKE 'status'");
+      console.log('🔎 peminjamans.status column definition:', cols);
+    } catch (error) {
+      console.warn('⚠️ Gagal membaca definisi kolom status peminjamans:', error.message);
+    }
     await db.sync();
   } catch (error) {
     console.error('❌ Gagal koneksi ke database:', error.message);
-    process.exit(1); // Membatalkan startup agar Cloud Run tahu container gagal
+    process.exit(1);
   }
 };
-connectDB();
 
-// Jalankan server
-const PORT = process.env.PORT || 8080;
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`✅ Server berjalan di port ${PORT}`);
-});
+// Jalankan server setelah database siap
+const startServer = async () => {
+  await connectDB();
+
+  const PORT = process.env.PORT || 8080;
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`✅ Server berjalan di port ${PORT}`);
+  });
+};
+
+startServer();
 

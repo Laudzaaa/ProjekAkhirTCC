@@ -49,7 +49,7 @@ const Buku = db.define('Buku', {
     allowNull: true
   },
   foto_url: {
-    type: DataTypes.STRING(500),
+    type: DataTypes.TEXT,
     allowNull: true
   }
 }, {

@@ -5,6 +5,7 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import Dashboard from './pages/Dashboard';
 import BookDetail from './pages/BookDetail';
+import Profile from './pages/Profile';
 import TambahBuku from './pages/TambahBuku';
 import './App.css';
 
@@ -29,6 +30,15 @@ function App() {
           element={
             <PrivateRoute>
               <BookDetail />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/profile"
+          element={
+            <PrivateRoute>
+              <Profile />
             </PrivateRoute>
           }
         />

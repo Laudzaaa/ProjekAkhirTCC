@@ -1,8 +1,17 @@
 runtime: nodejs22
+service: frontend-service
 env: standard
 
-service: frontend-service
+# Perpustakaan Digital Kampus - Updated 2026-05-24
+env_variables:
+  NODE_ENV: "production"
+  PORT: "8080"
+  REACT_APP_API_URL: "https://e-31-489014.et.r.appspot.com"
+
+automatic_scaling:
+  min_instances: 1
+  max_instances: 5
 
 handlers:
-  - url: /.*
-    script: auto
+- url: /.*
+  script: auto

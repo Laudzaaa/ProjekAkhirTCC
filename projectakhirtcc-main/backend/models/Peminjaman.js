@@ -36,8 +36,8 @@ const Peminjaman = db.define('Peminjaman', {
     allowNull: true
   },
   status: {
-    type: DataTypes.ENUM('aktif', 'dikembalikan', 'hilang'),
-    defaultValue: 'aktif'
+    type: DataTypes.ENUM('pending', 'aktif', 'dikembalikan', 'hilang'),
+    defaultValue: 'pending'
   },
   denda: {
     type: DataTypes.DECIMAL(10, 2),

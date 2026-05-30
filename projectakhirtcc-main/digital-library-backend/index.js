@@ -77,15 +77,15 @@ const startServer = async () => {
   try {
     console.log('🚀 Memulai backend Perpustakaan Digital...');
 
-    const isHealthy = await healthCheck();
-    if (!isHealthy) {
-      console.error('❌ Firebase connection failed');
-      process.exit(1);
-    }
-
     app.listen(PORT, () => {
       console.log(`✅ Server berjalan di port ${PORT}`);
       console.log(`📚 API Perpustakaan Digital siap digunakan`);
+    });
+
+    // Health check dijalankan setelah server aktif supaya Cloud Run tidak
+    // gagal start hanya karena Firestore sedang belum siap atau credential belum lengkap.
+    healthCheck().catch((error) => {
+      console.warn('⚠️ Firebase health check failed after startup:', error.message);
     });
   } catch (error) {
     console.error('❌ Gagal memulai server:', error.message);

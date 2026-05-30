@@ -4,6 +4,15 @@ import bcrypt from 'bcrypt';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 const JWT_EXPIRE = '7d';
+const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || '')
+  .split(',')
+  .map((email) => email.trim().toLowerCase())
+  .filter(Boolean);
+
+const getRoleForEmail = (email) => {
+  if (!email) return 'member';
+  return ADMIN_EMAILS.includes(email.toLowerCase()) ? 'admin' : 'member';
+};
 
 // ✅ Register member
 export const registerMember = async (req, res) => {
@@ -28,8 +37,14 @@ export const registerMember = async (req, res) => {
       password: hashedPassword
     });
 
+    const role = getRoleForEmail(member.email);
+
     // Generate token
-    const token = jwt.sign({ id_member: member.id_member, email: member.email }, JWT_SECRET, { expiresIn: JWT_EXPIRE });
+    const token = jwt.sign(
+      { id_member: member.id_member, email: member.email, role },
+      JWT_SECRET,
+      { expiresIn: JWT_EXPIRE }
+    );
 
     res.status(201).json({ 
       success: true, 
@@ -37,7 +52,8 @@ export const registerMember = async (req, res) => {
       data: { 
         id_member: member.id_member,
         email: member.email,
-        nama: member.nama
+        nama: member.nama,
+        role
       },
       token 
     });
@@ -63,7 +79,12 @@ export const loginMember = async (req, res) => {
     }
 
     // Generate token
-    const token = jwt.sign({ id_member: member.id_member, email: member.email }, JWT_SECRET, { expiresIn: JWT_EXPIRE });
+    const role = getRoleForEmail(member.email);
+    const token = jwt.sign(
+      { id_member: member.id_member, email: member.email, role },
+      JWT_SECRET,
+      { expiresIn: JWT_EXPIRE }
+    );
 
     res.json({ 
       success: true, 
@@ -72,7 +93,8 @@ export const loginMember = async (req, res) => {
         id_member: member.id_member,
         email: member.email,
         nama: member.nama,
-        status: member.status
+        status: member.status,
+        role
       },
       token 
     });

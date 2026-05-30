@@ -6,7 +6,7 @@ steps:
       - -c
       - |
         set -e
-        npm ci
+        npm install --no-audit --no-fund
         npm run build
 
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'

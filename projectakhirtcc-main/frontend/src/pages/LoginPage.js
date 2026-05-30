@@ -1,126 +1,77 @@
 import React, { useState } from 'react';
-import api from '../api/axios';
-import { toast } from 'react-toastify';
-import { useNavigate } from 'react-router-dom';
-import { Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import { userAPI } from '../api/api';
+import '../styles/Auth.css';
 
 const LoginPage = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    try {
-      console.log('📦 Axios baseURL:', api.defaults.baseURL);
+    setError('');
+    setLoading(true);
 
-      const res = await api.post('/users/login', { email, password });
-      localStorage.setItem('token', res.data.token);
-      toast.success('🔥 Login berhasil! Mengarahkan ke dashboard...');
-      setTimeout(() => {
-        navigate('/dashboard');
-      }, 1500);
+    try {
+      const response = await userAPI.login({ email, password });
+      const { data, token } = response.data;
+
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(data));
+
+      navigate('/dashboard');
     } catch (err) {
-      console.error('❌ Error saat login:', err?.response?.config?.url);
-      toast.error(err.response?.data?.message || '❌ Gagal login');
+      setError(err.response?.data?.message || 'Login gagal');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div style={styles.container}>
-      <div style={styles.card}>
-        <h2 style={styles.title}>Masuk ke Sistem</h2>
-        <form onSubmit={handleLogin} style={styles.form}>
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            style={styles.input}
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            style={styles.input}
-          />
-          <button type="submit" style={styles.button}>
-            Masuk
+    <div className="auth-container">
+      <div className="auth-card">
+        <h1>📚 Perpustakaan Digital</h1>
+        <h2>Login</h2>
+
+        {error && <div className="error-message">{error}</div>}
+
+        <form onSubmit={handleLogin}>
+          <div className="form-group">
+            <label htmlFor="email">Email:</label>
+            <input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="password">Password:</label>
+            <input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+
+          <button type="submit" disabled={loading} className="btn-primary">
+            {loading ? 'Loading...' : 'Login'}
           </button>
         </form>
-        <p style={styles.registerText}>
-          Belum punya akun?{' '}
-          <Link to="/register" style={styles.registerLink}>Daftar di sini</Link>
-        </p>
 
+        <p>
+          Belum punya akun? <Link to="/register">Daftar di sini</Link>
+        </p>
       </div>
     </div>
   );
-};
-
-const styles = {
-  container: {
-    minHeight: '100vh',
-    background: '#0f0f1a',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  card: {
-    width: '100%',
-    maxWidth: 400,
-    background: '#181824',
-    borderRadius: 16,
-    padding: '30px 25px',
-    boxShadow: '0 8px 30px rgba(0, 0, 0, 0.5)',
-  },
-  title: {
-    color: '#fff',
-    fontSize: 24,
-    marginBottom: 25,
-    fontWeight: 700,
-    textAlign: 'center',
-    letterSpacing: 1.2,
-  },
-  form: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 15,
-  },
-  input: {
-    padding: 12,
-    fontSize: 15,
-    borderRadius: 8,
-    border: '1px solid #555',
-    outline: 'none',
-    background: '#1e1e2f',
-    color: '#fff',
-  },
-  button: {
-    padding: 12,
-    background: 'linear-gradient(to right, #ff0080, #7928ca)',
-    color: '#fff',
-    fontWeight: 600,
-    border: 'none',
-    borderRadius: 8,
-    fontSize: 16,
-    cursor: 'pointer',
-  },
-  registerText: {
-    marginTop: 20,
-    color: '#ccc',
-    fontSize: 14,
-    textAlign: 'center',
-  },
-  registerLink: {
-    color: '#ff4dc4',
-    fontWeight: 'bold',
-    textDecoration: 'none',
-  },
 };
 
 export default LoginPage;

@@ -5,7 +5,9 @@ import {
   getMyPeminjaman,
   getPeminjamanById,
   markPeminjamanReturned,
-  getPeminjamanStats
+  getPeminjamanStats,
+  approvePeminjaman,
+  rejectPeminjaman
 } from '../controllers/peminjaman.controller.js';
 import { verifyToken } from '../middleware/verifyToken.js';
 
@@ -16,6 +18,8 @@ router.post('/', verifyToken, createPeminjaman);
 router.get('/my', verifyToken, getMyPeminjaman);
 
 // Admin routes
+router.put('/:id_peminjaman/approve', verifyToken, approvePeminjaman);
+router.delete('/:id_peminjaman/reject', verifyToken, rejectPeminjaman);
 router.get('/', verifyToken, getPeminjamanList);
 router.get('/stats', verifyToken, getPeminjamanStats);
 router.get('/:id', verifyToken, getPeminjamanById);
