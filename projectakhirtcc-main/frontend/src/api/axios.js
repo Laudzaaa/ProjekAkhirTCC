@@ -1,8 +1,8 @@
 import axios from 'axios';
 
-// Production: https://e-31-489014.et.r.appspot.com
+// Production (Cloud Run MySQL backend): https://digital-library-backend-mysql-132702792159.asia-southeast2.run.app
 // Local dev: http://localhost:8080
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://e-31-489014.et.r.appspot.com';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://digital-library-backend-mysql-132702792159.asia-southeast2.run.app';
 
 const api = axios.create({
   baseURL: API_BASE_URL,

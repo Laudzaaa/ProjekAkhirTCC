@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { userAPI } from '../api/api';
-import { getLocalJSON } from '../utils/storage';
 import '../styles/Profile.css';
 
 const Profile = () => {
@@ -22,18 +21,26 @@ const Profile = () => {
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
 
   useEffect(() => {
     fetchProfile();
   }, []);
 
+  const readStoredUser = () => {
+    try {
+      return JSON.parse(localStorage.getItem('user') || '{}');
+    } catch (error) {
+      return {};
+    }
+  };
+
   const fetchProfile = async () => {
     try {
       setLoading(true);
       const response = await userAPI.getProfile();
-      const data = response.data.data || response.data;
+      const data = response.data?.data || response.data || {};
 
       const nextProfile = {
         nama: data.nama || '',
@@ -42,7 +49,7 @@ const Profile = () => {
         nomor_hp: data.nomor_hp || '',
         alamat: data.alamat || '',
         status: data.status || '',
-        role: data.role || getLocalJSON('user', {}).role || '',
+        role: data.role || readStoredUser().role || '',
       };
 
       setProfile(nextProfile);
@@ -52,7 +59,7 @@ const Profile = () => {
         alamat: nextProfile.alamat,
       });
     } catch (err) {
-      const fallbackUser = getLocalJSON('user', {});
+      const fallbackUser = readStoredUser();
       const fallbackProfile = {
         nama: fallbackUser.nama || fallbackUser.fullName || '',
         email: fallbackUser.email || '',
@@ -77,10 +84,7 @@ const Profile = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((current) => ({
-      ...current,
-      [name]: value,
-    }));
+    setFormData((current) => ({ ...current, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
@@ -91,16 +95,16 @@ const Profile = () => {
 
     try {
       const response = await userAPI.updateProfile(formData);
-      const updatedProfile = response.data.data || profile;
+      const updated = response.data?.data || {};
 
       setProfile((current) => ({
         ...current,
-        nama: updatedProfile.nama ?? formData.nama,
-        nomor_hp: updatedProfile.nomor_hp ?? formData.nomor_hp,
-        alamat: updatedProfile.alamat ?? formData.alamat,
+        nama: updated.nama ?? formData.nama,
+        nomor_hp: updated.nomor_hp ?? formData.nomor_hp,
+        alamat: updated.alamat ?? formData.alamat,
       }));
 
-      const storedUser = getLocalJSON('user', {});
+      const storedUser = readStoredUser();
       localStorage.setItem(
         'user',
         JSON.stringify({
@@ -133,13 +137,9 @@ const Profile = () => {
           <div>
             <p className="eyebrow">Akun saya</p>
             <h1>{displayName}</h1>
-            <p className="hero-copy">
-              Lihat dan perbarui informasi dasar akun kamu di sini.
-            </p>
+            <p className="hero-copy">Lihat dan perbarui informasi dasar akun kamu di sini.</p>
           </div>
-          <Link to="/dashboard" className="back-link">
-            Kembali ke dashboard
-          </Link>
+          <Link to="/dashboard" className="back-link">Kembali ke dashboard</Link>
         </div>
 
         {error && <div className="notice notice-error">{error}</div>}
@@ -150,6 +150,7 @@ const Profile = () => {
             <div className="avatar">{displayName.charAt(0).toUpperCase()}</div>
             <h2>{displayName}</h2>
             <p>{profile.email || 'Email belum tersedia'}</p>
+
             <div className="meta-list">
               <div>
                 <span>Role</span>
@@ -206,11 +207,7 @@ const Profile = () => {
                 <button type="submit" className="save-btn" disabled={saving}>
                   {saving ? 'Menyimpan...' : 'Simpan Perubahan'}
                 </button>
-                <button
-                  type="button"
-                  className="secondary-btn"
-                  onClick={() => navigate('/dashboard')}
-                >
+                <button type="button" className="secondary-btn" onClick={() => navigate('/dashboard')}>
                   Batal
                 </button>
               </div>

@@ -2,7 +2,7 @@
   min-height: 100vh;
   padding: 32px 20px;
   background:
-    radial-gradient(circle at top left, rgba(25, 118, 210, 0.14), transparent 32%),
+    radial-gradient(circle at top left, rgba(37, 99, 235, 0.14), transparent 34%),
     linear-gradient(180deg, #f6f8fc 0%, #eef3f9 100%);
   color: #1f2937;
 }
@@ -77,14 +77,15 @@
 }
 
 .profile-card {
-  background: rgba(255, 255, 255, 0.88);
-  border: 1px solid rgba(148, 163, 184, 0.2);
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(148, 163, 184, 0.22);
   border-radius: 24px;
   box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
   backdrop-filter: blur(10px);
 }
 
-.identity-card {
+.identity-card,
+.form-card {
   padding: 28px;
 }
 
@@ -131,10 +132,6 @@
 
 .meta-list strong {
   text-align: right;
-}
-
-.form-card {
-  padding: 28px;
 }
 
 .form-card form {

@@ -22,8 +22,10 @@ export const bookAPI = {
 export const borrowingAPI = {
   createBorrowing: (data) => api.post('/api/library/peminjaman', data),
   getMyBorrowings: () => api.get('/api/library/peminjaman/my'),
-  getBorrowingList: () => api.get('/api/library/peminjaman'),
+  getBorrowingList: (params) => api.get('/api/library/peminjaman', { params }),
   getBorrowingById: (id) => api.get(`/api/library/peminjaman/${id}`),
+  approveBorrowing: (id) => api.put(`/api/library/peminjaman/${id}/approve`),
+  rejectBorrowing: (id) => api.delete(`/api/library/peminjaman/${id}/reject`),
 };
 
 // Return API (Library System)
@@ -31,4 +33,3 @@ export const returnAPI = {
   createReturn: (data) => api.post('/api/library/pengembalian', data),
   getReturnHistory: () => api.get('/api/library/pengembalian'),
 };
-

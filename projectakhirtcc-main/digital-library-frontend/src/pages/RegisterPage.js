@@ -24,7 +24,7 @@ const RegisterPage = () => {
     setLoading(true);
 
     try {
-      await userAPI.register({ fullName, email, password });
+      await userAPI.register({ nama: fullName, email, password });
       navigate('/login');
     } catch (err) {
       setError(err.response?.data?.message || 'Registrasi gagal');

@@ -2,7 +2,7 @@ import { Member } from '../models/index.js';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
+const JWT_SECRET = process.env.ACCESS_TOKEN_SECRET || process.env.JWT_SECRET || 'your-secret-key';
 const JWT_EXPIRE = '7d';
 const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || '')
   .split(',')

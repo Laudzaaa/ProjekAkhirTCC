@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { bookAPI } from '../api/api';
-import { getLocalJSON } from '../utils/storage';
 import '../styles/Dashboard.css';
 
 const Dashboard = () => {
@@ -19,8 +18,8 @@ const Dashboard = () => {
     try {
       setLoading(true);
       const response = await bookAPI.getAllBooks({
-        searchQuery,
-        category,
+        search: searchQuery,
+        kategori: category,
         limit: 20,
       });
       setBooks(response.data.data);
@@ -37,8 +36,16 @@ const Dashboard = () => {
     navigate('/login');
   };
 
-  const user = getLocalJSON('user', {});
-  const displayName = user.nama || user.fullName || user.email || 'Pengguna';
+  const rawUser = localStorage.getItem('user');
+  let user = null;
+
+  try {
+    user = rawUser ? JSON.parse(rawUser) : null;
+  } catch (error) {
+    user = null;
+  }
+
+  const displayName = user?.nama || user?.fullName || user?.email || 'Pengguna';
 
   return (
     <div className="dashboard">
@@ -47,9 +54,19 @@ const Dashboard = () => {
           <h1>📚 Perpustakaan Digital Kampus</h1>
           <div className="navbar-menu">
             <span>Selamat datang, {displayName}</span>
-            {user.role === 'admin' && (
-              <Link to="/admin/tambah-buku" className="btn-secondary">
-                Tambah Buku
+            {user?.role === 'admin' && (
+              <>
+                <Link to="/admin/tambah-buku" className="btn-secondary">
+                  Tambah Buku
+                </Link>
+                <Link to="/admin/peminjaman" className="btn-secondary">
+                  Kelola Peminjaman
+                </Link>
+              </>
+            )}
+            {user?.role !== 'admin' && (
+              <Link to="/riwayat-peminjaman" className="btn-secondary">
+                Riwayat Peminjaman
               </Link>
             )}
             <Link to="/profile" className="btn-secondary">
@@ -91,20 +108,20 @@ const Dashboard = () => {
             {books.length > 0 ? (
               books.map((book) => (
                 <Link
-                  key={book.id}
-                  to={`/book/${book.id}`}
+                  key={book.id_buku}
+                  to={`/book/${book.id_buku}`}
                   className="book-card"
                 >
                   <div className="book-cover">
-                    {book.coverImage ? (
-                      <img src={book.coverImage} alt={book.title} />
+                    {book.foto_url ? (
+                      <img src={book.foto_url} alt={book.judul} />
                     ) : (
                       <div className="book-placeholder">📕</div>
                     )}
                   </div>
-                  <h3>{book.title}</h3>
-                  <p className="author">by {book.author}</p>
-                  <p className="category">{book.category}</p>
+                  <h3>{book.judul}</h3>
+                  <p className="author">by {book.pengarang}</p>
+                  <p className="category">{book.kategori}</p>
                 </Link>
               ))
             ) : (

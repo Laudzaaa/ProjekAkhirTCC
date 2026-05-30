@@ -1,22 +1,61 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { bookAPI } from '../api/api';
 import '../styles/AdminForm.css';
 
-const TambahBuku = () => {
+const EditBuku = () => {
+  const { id } = useParams();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     judul: '',
     pengarang: '',
+    penerbit: '',
     isbn: '',
     deskripsi: '',
     kategori: 'Akademik',
     tahun_terbit: new Date().getFullYear(),
     foto_url: '',
+    stok: 0,
   });
   const [photoPreview, setPhotoPreview] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [initialStock, setInitialStock] = useState(0);
+  const [initialStockAvailable, setInitialStockAvailable] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    fetchBook();
+  }, [id]);
+
+  const fetchBook = async () => {
+    try {
+      setLoading(true);
+      const response = await bookAPI.getBookById(id);
+      const book = response.data?.data;
+      if (!book) {
+        throw new Error('Data buku tidak valid');
+      }
+      setFormData({
+        judul: book.judul || '',
+        pengarang: book.pengarang || '',
+        penerbit: book.penerbit || '',
+        isbn: book.isbn || '',
+        deskripsi: book.deskripsi || '',
+        kategori: book.kategori || 'Akademik',
+        tahun_terbit: book.tahun_terbit || new Date().getFullYear(),
+        foto_url: book.foto_url || '',
+        stok: Number(book.stok || 0),
+      });
+      setPhotoPreview(book.foto_url || '');
+      setInitialStock(Number(book.stok || 0));
+      setInitialStockAvailable(Number(book.stok_tersedia || 0));
+    } catch (err) {
+      setError(err.response?.data?.message || 'Gagal memuat data buku');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -29,25 +68,37 @@ const TambahBuku = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    setLoading(true);
+    setSaving(true);
 
     try {
-      await bookAPI.createBook({
+      const newStock = Number(formData.stok || 0);
+      const delta = newStock - initialStock;
+      const updatedStockAvailable = Math.max(
+        0,
+        Math.min(newStock, initialStockAvailable + delta)
+      );
+
+      await bookAPI.updateBook(id, {
         judul: formData.judul,
         pengarang: formData.pengarang,
+        penerbit: formData.penerbit,
         isbn: formData.isbn,
         kategori: formData.kategori,
         tahun_terbit: formData.tahun_terbit,
         deskripsi: formData.deskripsi,
         foto_url: formData.foto_url,
+        stok: newStock,
+        stok_tersedia: updatedStockAvailable,
       });
-      navigate('/dashboard');
+      navigate(`/book/${id}`);
     } catch (err) {
-      setError(err.response?.data?.message || 'Gagal menambah buku');
+      setError(err.response?.data?.message || 'Gagal memperbarui buku');
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
   };
+
+  if (loading) return <div className="loading">Memuat data buku...</div>;
 
   return (
     <div className="admin-form">
@@ -55,7 +106,7 @@ const TambahBuku = () => {
         ← Kembali
       </button>
 
-      <h1>Tambah Buku Baru</h1>
+      <h1>Edit Buku</h1>
 
       {error && <div className="error-message">{error}</div>}
 
@@ -81,6 +132,17 @@ const TambahBuku = () => {
             value={formData.pengarang}
             onChange={handleInputChange}
             required
+          />
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="penerbit">Penerbit</label>
+          <input
+            id="penerbit"
+            type="text"
+            name="penerbit"
+            value={formData.penerbit}
+            onChange={handleInputChange}
           />
         </div>
 
@@ -122,6 +184,21 @@ const TambahBuku = () => {
         </div>
 
         <div className="form-group">
+          <label htmlFor="stok">Stok Total</label>
+          <input
+            id="stok"
+            type="number"
+            min="0"
+            name="stok"
+            value={formData.stok}
+            onChange={handleInputChange}
+          />
+          <small>
+            Stok tersedia akan disesuaikan otomatis berdasarkan perubahan stok.
+          </small>
+        </div>
+
+        <div className="form-group">
           <label htmlFor="deskripsi">Deskripsi</label>
           <textarea
             id="deskripsi"
@@ -150,12 +227,12 @@ const TambahBuku = () => {
           )}
         </div>
 
-        <button type="submit" disabled={loading} className="btn-primary">
-          {loading ? 'Memproses...' : 'Tambah Buku'}
+        <button type="submit" disabled={saving} className="btn-primary">
+          {saving ? 'Menyimpan...' : 'Simpan Perubahan'}
         </button>
       </form>
     </div>
   );
 };
 
-export default TambahBuku;
+export default EditBuku;

@@ -7,6 +7,9 @@ import Dashboard from './pages/Dashboard';
 import BookDetail from './pages/BookDetail';
 import Profile from './pages/Profile';
 import TambahBuku from './pages/TambahBuku';
+import EditBuku from './pages/EditBuku';
+import RiwayatPeminjaman from './pages/RiwayatPeminjaman';
+import AdminPeminjaman from './pages/AdminPeminjaman';
 import './App.css';
 
 function App() {
@@ -48,6 +51,33 @@ function App() {
           element={
             <PrivateRoute allowedRoles={['admin']}>
               <TambahBuku />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/admin/edit-buku/:id"
+          element={
+            <PrivateRoute allowedRoles={['admin']}>
+              <EditBuku />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/admin/peminjaman"
+          element={
+            <PrivateRoute allowedRoles={['admin']}>
+              <AdminPeminjaman />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/riwayat-peminjaman"
+          element={
+            <PrivateRoute>
+              <RiwayatPeminjaman />
             </PrivateRoute>
           }
         />

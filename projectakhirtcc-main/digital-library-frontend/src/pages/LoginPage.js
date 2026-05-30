@@ -17,7 +17,7 @@ const LoginPage = () => {
 
     try {
       const response = await userAPI.login({ email, password });
-      const { data, token } = response.data.data;
+      const { data, token } = response.data;
 
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(data));
