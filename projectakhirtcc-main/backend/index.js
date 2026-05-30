@@ -85,7 +85,7 @@ app.get('/health', (req, res) => {
 app.get('/', (req, res) => {
   res.status(200).json({
     message: '✅ REST API Aktif - Rental Kendaraan & Perpustakaan 🚗📚',
-    deployment: 'App Engine standard',
+    deployment: 'Cloud Run',
   });
 });
 
@@ -94,7 +94,7 @@ app.use((req, res) => {
   res.status(404).json({ message: 'Endpoint tidak ditemukan' });
 });
 
-// Koneksi DB
+// Koneksi DB (non-blocking: server tetap jalan meski DB gagal)
 const connectDB = async () => {
   try {
     console.log('🔌 Menghubungkan ke database...');
@@ -119,21 +119,18 @@ const connectDB = async () => {
       console.warn('⚠️ Gagal membaca definisi kolom status peminjamans:', error.message);
     }
     await db.sync();
+    console.log('✅ Database sync berhasil!');
   } catch (error) {
     console.error('❌ Gagal koneksi ke database:', error.message);
-    process.exit(1);
+    console.error('⚠️ Server tetap berjalan, tapi fitur database tidak aktif.');
   }
 };
 
-// Jalankan server setelah database siap
-const startServer = async () => {
-  await connectDB();
-
-  const PORT = process.env.PORT || 8080;
-  app.listen(PORT, '0.0.0.0', () => {
-    console.log(`✅ Server berjalan di port ${PORT}`);
-  });
-};
-
-startServer();
+// START SERVER FIRST (agar Cloud Run health check lolos), lalu koneksi DB
+const PORT = process.env.PORT || 8080;
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`✅ Server berjalan di port ${PORT}`);
+  // Koneksi DB setelah server jalan
+  connectDB();
+});
 
